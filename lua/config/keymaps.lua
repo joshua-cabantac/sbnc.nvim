@@ -21,14 +21,15 @@ vim.keymap.set('n', '<C-S-j>', '<C-w>J', { desc = 'Move window to the lower' })
 vim.keymap.set('n', '<C-S-k>', '<C-w>K', { desc = 'Move window to the upper' })
 
 vim.keymap.set('n', '<leader>l', '<cmd>Lazy<cr>', { desc = 'Open Lazy' })
-vim.keymap.set('n', '<leader>e', function()
-  local netrw_bufname = vim.fn.bufname()
-  if netrw_bufname:match '^netrw' or vim.bo.filetype == 'netrw' then
-    vim.cmd 'b#' -- go to alternate buffer
-  else
-    vim.cmd 'Ex' -- open netrw
-  end
-end, { desc = 'Toggle netrw' })
+-- vim.keymap.set('n', '<leader>e', function()
+-- vim.keymap.set('n', '<leader>e', function()
+--   local netrw_bufname = vim.fn.bufname()
+--   if netrw_bufname:match '^netrw' or vim.bo.filetype == 'netrw' then
+--     vim.cmd 'b#' -- go to alternate buffer
+--   else
+--     vim.cmd 'Ex' -- open netrw
+--   end
+-- end, { desc = 'Toggle netrw' })
 
 -- LSP: Code Action
 vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, { desc = 'LSP: Code Action' })
