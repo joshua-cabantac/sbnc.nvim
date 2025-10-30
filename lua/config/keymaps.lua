@@ -49,6 +49,8 @@ vim.keymap.set('n', ']e', vim.diagnostic.goto_next, { desc = 'Next Diagnostic' }
 
 -- Switch to last buffer
 vim.keymap.set('n', '<leader>bb', '<C-^>', { noremap = true, desc = 'Switch Buffers' })
+-- Delete all buffers except open
+vim.keymap.set('n', '<leader>bo', ':%bd|e#|bd#<CR>', { noremap = true, silent = true })
 
 -- Harpoon
 vim.keymap.set('n', '<leader>hh', function()

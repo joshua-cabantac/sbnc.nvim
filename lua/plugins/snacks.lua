@@ -4,6 +4,43 @@ return {
   lazy = false,
   ---@type snacks.Config
   opts = {
+    image = {
+      enabled = true,
+      doc = { enabled = true }, -- render inside markdown buffers
+      img_dirs = {
+        '~/Documents/Vault/files', -- main assets folder
+        '~/Documents/Vault', -- optional fallback
+      },
+      -- Resolve Obsidian-style ![[...]] links
+      resolve = function(src, ctx)
+        local raw = src:gsub('%%20', ' ')
+        local inner = raw:match '^!?%[%[(.-)%]%]$'
+        local name = inner and inner:gsub('|.*$', ''):gsub('#.*$', '') or raw
+
+        -- absolute path → return
+        if name:sub(1, 1) == '/' then
+          return name
+        end
+
+        -- try exactly as written inside files/
+        local direct = vim.fn.expand('~/Documents/Vault/files/' .. name)
+        if vim.uv.fs_stat(direct) then
+          return direct
+        end
+
+        -- try with common extensions
+        local exts = { '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg' }
+        for _, ext in ipairs(exts) do
+          local cand = vim.fn.expand('~/Documents/Vault/files/' .. name .. ext)
+          if vim.uv.fs_stat(cand) then
+            return cand
+          end
+        end
+
+        -- fallback to Snacks’ default (e.g. relative to current note)
+        return src
+      end,
+    },
     bigfile = { enabled = true },
     dashboard = {
       enabled = true,

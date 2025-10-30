@@ -127,7 +127,7 @@ return {
       jdtls = {}, -- uses default, but you can pass `cmd`, `settings`, etc.
       ts_ls = {},
       svelte = {},
-      sourcekit = {},
+      -- sourcekit = {},
       -- clangd = {},
       gopls = {},
       -- pyright = {},
