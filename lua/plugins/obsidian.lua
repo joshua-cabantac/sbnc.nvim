@@ -21,10 +21,9 @@ return {
     workspaces = {
       {
         name = 'vault',
-        path = '~/Documents/Vault/',
+        path = '~/Vault/',
       },
     },
-
-    -- see below for full list of options 👇
+    disable_frontmatter = true,
   },
 }

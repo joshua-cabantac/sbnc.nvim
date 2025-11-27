@@ -1,5 +1,10 @@
 return {
   'mrcjkb/rustaceanvim',
-  version = '^5', -- Recommended
-  lazy = false, -- This plugin is already lazy
+  version = '^5',
+  lazy = false,
+  tools = {
+    executor = {
+      notification = false, -- disables rust-analyzer status messages
+    },
+  },
 }

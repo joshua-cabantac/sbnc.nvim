@@ -81,8 +81,6 @@ require 'config.keymaps'
 require 'config.lazy'
 require 'config.colorscheme'
 vim.opt.termguicolors = true
-require('bufferline').setup {}
-require('oil').setup()
 Harpoon = require 'harpoon'
 
 Harpoon:setup()
