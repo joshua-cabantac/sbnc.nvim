@@ -123,14 +123,31 @@ return {
 
     local capabilities = require('blink.cmp').get_lsp_capabilities()
 
+    -- Mason only installs tools you enumerate here.
+    -- Add language servers to this table, then add any non-LSP tools below.
     local servers = {
+      basedpyright = {
+        settings = {
+          basedpyright = {
+            analysis = {
+              autoImportCompletions = true,
+              typeCheckingMode = 'basic',
+            },
+          },
+        },
+      },
+      gopls = {},
       jdtls = {}, -- uses default, but you can pass `cmd`, `settings`, etc.
-      ts_ls = {},
+      ruff = {
+        on_attach = function(client)
+          -- Let basedpyright own hover/signature help for Python.
+          client.server_capabilities.hoverProvider = false
+        end,
+      },
       svelte = {},
+      ts_ls = {},
       -- sourcekit = {},
       -- clangd = {},
-      gopls = {},
-      -- pyright = {},
       -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
       -- But for many setups, the LSP (`ts_ls`) will work just fine
 
@@ -150,9 +167,18 @@ return {
 
     local ensure_installed = vim.tbl_keys(servers or {})
     vim.list_extend(ensure_installed, {
+      'codelldb',
+      'debugpy',
+      'delve',
+      'js-debug-adapter',
+      'prettierd',
+      'rust-analyzer',
       'stylua', -- Used to format Lua code
     })
-    require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+    require('mason-tool-installer').setup {
+      ensure_installed = ensure_installed,
+      run_on_start = true,
+    }
 
     require('mason-lspconfig').setup {
       ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
