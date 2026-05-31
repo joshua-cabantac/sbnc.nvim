@@ -6,7 +6,12 @@ vim.g.maplocalleader = ' '
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<leader>qf', function()
+  vim.diagnostic.setqflist()
+  vim.cmd 'copen'
+end, { desc = 'Populate quickfix with all workspace diagnostics' })
+vim.keymap.set('n', '<leader>qn', '<cmd>lnext<CR>', { desc = 'Next location list item' })
+vim.keymap.set('n', '<leader>qp', '<cmd>lprev<CR>', { desc = 'Prev location list item' })
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
