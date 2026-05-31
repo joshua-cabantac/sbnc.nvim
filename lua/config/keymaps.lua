@@ -110,25 +110,25 @@ vim.keymap.set('n', '<C-S-N>', function()
   Harpoon:list():next()
 end)
 
-vim.keymap.set('n', 'j', function()
-  if require('dataview.renderer').move_selection_cursor(1) then
-    return
-  end
-  vim.cmd 'normal! j'
-end, { buffer = true })
+-- vim.keymap.set('n', 'j', function()
+--   if require('dataview.renderer').move_selection_cursor(1) then
+--     return
+--   end
+--   vim.cmd 'normal! j'
+-- end, { buffer = true })
 
-vim.keymap.set('n', 'k', function()
-  if require('dataview.renderer').move_selection_cursor(-1) then
-    return
-  end
-  vim.cmd 'normal! k'
-end, { buffer = true })
+-- vim.keymap.set('n', 'k', function()
+--   if require('dataview.renderer').move_selection_cursor(-1) then
+--     return
+--   end
+--   vim.cmd 'normal! k'
+-- end, { buffer = true })
 
-vim.keymap.set('n', '<leader>gd', function()
-  if not require('dataview.renderer').jump_to_task_cursor() then
-    vim.cmd 'normal! gd'
-  end
-end, { buffer = true })
+-- vim.keymap.set('n', '<leader>gd', function()
+--   if not require('dataview.renderer').jump_to_task_cursor() then
+--     vim.cmd 'normal! gd'
+--   end
+-- end, { buffer = true })
 
 -- vim.api.nvim_create_autocmd('FileType', {
 --   pattern = { 'markdown', 'obsidian' },
