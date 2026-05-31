@@ -37,6 +37,7 @@ return { -- Autoformat
       javascript = { 'prettierd', 'prettier', stop_after_first = true },
       typescript = { 'prettierd', 'prettier', stop_after_first = true },
       svelte = { 'prettierd', 'prettier', stop_after_first = true },
+      swift = { 'swiftformat' },
     },
   },
 }

@@ -123,6 +123,12 @@ return {
 
     local capabilities = require('blink.cmp').get_lsp_capabilities()
 
+    local function setup_server(server_name, server)
+      server = server or {}
+      server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+      require('lspconfig')[server_name].setup(server)
+    end
+
     -- Mason only installs tools you enumerate here.
     -- Add language servers to this table, then add any non-LSP tools below.
     local servers = {
@@ -146,7 +152,6 @@ return {
       },
       svelte = {},
       ts_ls = {},
-      -- sourcekit = {},
       -- clangd = {},
       -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
       -- But for many setups, the LSP (`ts_ls`) will work just fine
@@ -165,6 +170,37 @@ return {
       },
     }
 
+    local function sourcekit_cmd()
+      local xcrun_sourcekit = vim.fn.systemlist { 'xcrun', '--find', 'sourcekit-lsp' }[1]
+      if vim.v.shell_error == 0 and xcrun_sourcekit and xcrun_sourcekit ~= '' then
+        return { xcrun_sourcekit }
+      end
+
+      if vim.fn.executable 'sourcekit-lsp' == 1 then
+        return { 'sourcekit-lsp' }
+      end
+    end
+
+    -- sourcekit-lsp is provided by Xcode or the Swift toolchain, not Mason.
+    local sourcekit = sourcekit_cmd()
+    if sourcekit then
+      local util = require 'lspconfig.util'
+      setup_server('sourcekit', {
+        cmd = sourcekit,
+        filetypes = { 'swift' },
+        root_dir = function(fname)
+          return util.root_pattern(
+            'buildServer.json',
+            'Package.swift',
+            'Runner.xcworkspace',
+            'Runner.xcodeproj',
+            'Podfile',
+            '.git'
+          )(fname) or util.path.dirname(fname)
+        end,
+      })
+    end
+
     local ensure_installed = vim.tbl_keys(servers or {})
     vim.list_extend(ensure_installed, {
       'codelldb',
@@ -173,6 +209,7 @@ return {
       'js-debug-adapter',
       'prettierd',
       'rust-analyzer',
+      'swiftformat',
       'stylua', -- Used to format Lua code
     })
     require('mason-tool-installer').setup {
@@ -185,9 +222,7 @@ return {
       automatic_installation = false,
       handlers = {
         function(server_name)
-          local server = servers[server_name] or {}
-          server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-          require('lspconfig')[server_name].setup(server)
+          setup_server(server_name, servers[server_name])
         end,
       },
     }
