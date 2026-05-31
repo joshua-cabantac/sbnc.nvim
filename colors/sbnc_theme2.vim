@@ -15,7 +15,7 @@ set t_Co=256
 " ----------------------
 " Palette (base)
 " ----------------------
-let s:bg_main    = "#0b0d0e"
+let s:bg_main    = "#000000"
 let s:bg_alt     = "#24426D"
 let s:fg_main    = "#C4C4C4"
 let s:fg_dim     = "#747474"
