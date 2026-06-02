@@ -143,7 +143,6 @@ return {
         },
       },
       gopls = {},
-      jdtls = {}, -- uses default, but you can pass `cmd`, `settings`, etc.
       ruff = {
         on_attach = function(client)
           -- Let basedpyright own hover/signature help for Python.
@@ -222,6 +221,9 @@ return {
       automatic_installation = false,
       handlers = {
         function(server_name)
+          if server_name == 'jdtls' then
+            return
+          end
           setup_server(server_name, servers[server_name])
         end,
       },
