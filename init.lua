@@ -10,7 +10,9 @@ vim.o.showmode = false
 
 vim.opt.wrap = false
 
--- Sync clipboard between OS and Neovim.
+-- Send clipboard yanks through the attached terminal (including an SSH client)
+-- with OSC 52. `unnamedplus` makes normal yanks use that clipboard register.
+vim.g.clipboard = 'osc52'
 vim.schedule(function()
   vim.o.clipboard = 'unnamedplus'
 end)

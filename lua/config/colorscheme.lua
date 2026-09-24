@@ -1,1 +1,1 @@
-vim.cmd 'colorscheme sbnc_theme2'
+vim.cmd 'colorscheme sbnc-colors'
