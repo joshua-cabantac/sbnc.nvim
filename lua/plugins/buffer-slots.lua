@@ -1,38 +1,30 @@
 -- Use the local dev copy when it exists (primary machine), otherwise
 -- install from GitHub (other machines, e.g. sbnc-laptop).
-local has_local = vim.fn.isdirectory(vim.fn.expand('~/sbnc-buffer-slots.nvim')) == 1
-local spec = has_local
-    and { dir = vim.fn.expand('~/sbnc-buffer-slots.nvim'), name = 'sbnc-buffer-slots.nvim' }
-    or 'joshua-cabantac/sbnc-buffer-slots.nvim'
+local function config()
+  -- The plugin exposes actions but does not bind keys by default.
+  -- Personal bindings:
+  local slots = require('sbnc_buffer_slots')
 
-return {
-  spec,
-  lazy = false,
-  config = function()
-    -- The plugin exposes actions but does not bind keys by default.
-    -- Personal bindings:
-    local slots = require('sbnc_buffer_slots')
+  for i = 1, 9 do
+    vim.keymap.set('n', '<leader>' .. i, function()
+      slots.switch(i)
+    end, { desc = 'Switch to buffer ' .. i })
+  end
+  vim.keymap.set('n', '<leader>0', function()
+    slots.switch(10)
+  end, { desc = 'Switch to buffer 10' })
 
-    for i = 1, 9 do
-      vim.keymap.set('n', '<leader>' .. i, function()
-        slots.switch(i)
-      end, { desc = 'Switch to buffer ' .. i })
-    end
-    vim.keymap.set('n', '<leader>0', function()
-      slots.switch(10)
-    end, { desc = 'Switch to buffer 10' })
-
-    -- Swap current buffer with slot N: leader + shifted number row.
-    -- German/QWERTZ layout: ! = Shift+1 ... ( ) = Shift+8/9, = = Shift+0.
-    local swap_keys = { ['1'] = '!', ['2'] = '"', ['3'] = '§', ['4'] = '$', ['5'] = '%', ['6'] = '&', ['7'] = '/', ['8'] = '(', ['9'] = ')' }
-    for slot, key in pairs(swap_keys) do
-      vim.keymap.set('n', '<leader>' .. key, function()
-        slots.swap(tonumber(slot))
-      end, { desc = 'Swap current buffer with slot ' .. slot })
-    end
-    vim.keymap.set('n', '<leader>=', function()
-      slots.swap(10)
-    end, { desc = 'Swap current buffer with slot 10' })
+  -- Swap current buffer with slot N: leader + shifted number row.
+  -- German/QWERTZ layout: ! = Shift+1 ... ( ) = Shift+8/9, = = Shift+0.
+  local swap_keys = { ['1'] = '!', ['2'] = '"', ['3'] = '§', ['4'] = '$', ['5'] = '%', ['6'] = '&', ['7'] = '/', ['8'] = '(', ['9'] = ')' }
+  for slot, key in pairs(swap_keys) do
+    vim.keymap.set('n', '<leader>' .. key, function()
+      slots.swap(tonumber(slot))
+    end, { desc = 'Swap current buffer with slot ' .. slot })
+  end
+  vim.keymap.set('n', '<leader>=', function()
+    slots.swap(10)
+  end, { desc = 'Swap current buffer with slot 10' })
 
     vim.keymap.set('n', '<leader>bn', slots.next, { desc = 'Next file buffer' })
     vim.keymap.set('n', '<leader>bp', slots.prev, { desc = 'Previous file buffer' })
@@ -61,5 +53,21 @@ return {
       require('sbnc_buffer_slots')
       vim.notify('buffer-slots reloaded')
     end, { desc = 'Reload buffer-slots' })
-  end,
+end
+
+local has_local = vim.fn.isdirectory(vim.fn.expand('~/sbnc-buffer-slots.nvim')) == 1
+
+if has_local then
+  return {
+    dir = vim.fn.expand('~/sbnc-buffer-slots.nvim'),
+    name = 'sbnc-buffer-slots.nvim',
+    lazy = false,
+    config = config,
+  }
+end
+
+return {
+  'joshua-cabantac/sbnc-buffer-slots.nvim',
+  lazy = false,
+  config = config,
 }
