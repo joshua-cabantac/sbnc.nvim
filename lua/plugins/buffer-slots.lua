@@ -1,6 +1,12 @@
+-- Use the local dev copy when it exists (primary machine), otherwise
+-- install from GitHub (other machines, e.g. sbnc-laptop).
+local has_local = vim.fn.isdirectory(vim.fn.expand('~/sbnc-buffer-slots.nvim')) == 1
+local spec = has_local
+    and { dir = vim.fn.expand('~/sbnc-buffer-slots.nvim'), name = 'sbnc-buffer-slots.nvim' }
+    or 'joshua-cabantac/sbnc-buffer-slots.nvim'
+
 return {
-  dir = vim.fn.expand '~/sbnc-buffer-slots.nvim',
-  name = 'sbnc-buffer-slots.nvim',
+  spec,
   lazy = false,
   config = function()
     -- The plugin exposes actions but does not bind keys by default.
