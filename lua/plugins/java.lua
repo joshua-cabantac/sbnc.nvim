@@ -1,6 +1,7 @@
 return {
   {
     'nvim-java/nvim-java',
+    ft = 'java',
     dependencies = {
       'MunifTanjim/nui.nvim',
       'mfussenegger/nvim-dap',
@@ -10,16 +11,61 @@ return {
       },
     },
     config = function()
-      local function java_home()
-        local home = vim.fn.systemlist({ '/usr/libexec/java_home', '-v', '21' })[1]
-        if vim.v.shell_error == 0 and home and home ~= '' then
-          return home
+      local function path_join(...)
+        return table.concat({ ... }, package.config:sub(1, 1))
+      end
+
+      local function path_separator()
+        return vim.fn.has 'win32' == 1 and ';' or ':'
+      end
+
+      local function executable(path)
+        return path and path ~= '' and vim.fn.executable(path) == 1
+      end
+
+      local function normalize_java_home(home)
+        if not home or home == '' then
+          return nil
         end
 
-        home = vim.fn.systemlist({ '/usr/libexec/java_home' })[1]
-        if vim.v.shell_error == 0 and home and home ~= '' then
+        home = vim.fn.fnamemodify(vim.fn.expand(home), ':p:h')
+        local java_bin = vim.fn.has 'win32' == 1 and 'java.exe' or 'java'
+        if executable(path_join(home, 'bin', java_bin)) then
           return home
         end
+      end
+
+      local function java_home_from_executable(java_bin)
+        if not java_bin or java_bin == '' then
+          return nil
+        end
+
+        local real_java = vim.uv.fs_realpath(java_bin) or java_bin
+        return normalize_java_home(vim.fn.fnamemodify(real_java, ':h:h'))
+      end
+
+      local function java_home()
+        local env_home = normalize_java_home(vim.fn.getenv 'JAVA_HOME')
+        if env_home then
+          return env_home
+        end
+
+        if executable '/usr/libexec/java_home' then
+          local home = vim.fn.systemlist({ '/usr/libexec/java_home', '-v', '21' })[1]
+          home = normalize_java_home(home)
+          if home then
+            return home
+          end
+
+          home = vim.fn.systemlist({ '/usr/libexec/java_home' })[1]
+          home = normalize_java_home(home)
+          if home then
+            return home
+          end
+        end
+
+        local java_bin = vim.fn.has 'win32' == 1 and vim.fn.exepath 'java.exe' or vim.fn.exepath 'java'
+        return java_home_from_executable(java_bin)
       end
 
       local function attach_java_debugger(opts)
@@ -65,15 +111,34 @@ return {
       require('java').setup {
         -- The project already has a working JDK; avoid nvim-java's OpenJDK
         -- installer path, which is incompatible with the pinned Mason version.
+        java_debug_adapter = {
+          enable = true,
+        },
+        java_test = {
+          enable = true,
+        },
+        spring_boot_tools = {
+          enable = true,
+        },
         jdk = {
           auto_install = false,
         },
       }
       vim.lsp.config('jdtls', {
-        root_markers = {
-          { 'mvnw', 'pom.xml', 'gradlew', 'settings.gradle', 'settings.gradle.kts', 'build.gradle', 'build.gradle.kts' },
-          { '.git' },
-        },
+        filetypes = { 'java' },
+        root_dir = function(bufnr, on_dir)
+          local root = vim.fs.root(bufnr, {
+            'mvnw',
+            'pom.xml',
+            'gradlew',
+            'settings.gradle',
+            'settings.gradle.kts',
+            'build.gradle',
+            'build.gradle.kts',
+            '.git',
+          })
+          on_dir(root or vim.fs.dirname(vim.api.nvim_buf_get_name(bufnr)))
+        end,
         capabilities = require('blink.cmp').get_lsp_capabilities(),
         cmd_env = (function()
           local home = java_home()
@@ -83,7 +148,7 @@ return {
 
           return {
             JAVA_HOME = home,
-            PATH = home .. '/bin:' .. vim.fn.getenv 'PATH',
+            PATH = path_join(home, 'bin') .. path_separator() .. vim.fn.getenv 'PATH',
           }
         end)(),
         handlers = {

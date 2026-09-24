@@ -126,7 +126,8 @@ return {
     local function setup_server(server_name, server)
       server = server or {}
       server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-      require('lspconfig')[server_name].setup(server)
+      vim.lsp.config(server_name, server)
+      vim.lsp.enable(server_name)
     end
 
     -- Mason only installs tools you enumerate here.
@@ -170,9 +171,11 @@ return {
     }
 
     local function sourcekit_cmd()
-      local xcrun_sourcekit = vim.fn.systemlist { 'xcrun', '--find', 'sourcekit-lsp' }[1]
-      if vim.v.shell_error == 0 and xcrun_sourcekit and xcrun_sourcekit ~= '' then
-        return { xcrun_sourcekit }
+      if vim.fn.executable 'xcrun' == 1 then
+        local xcrun_sourcekit = vim.fn.systemlist({ 'xcrun', '--find', 'sourcekit-lsp' })[1]
+        if vim.v.shell_error == 0 and xcrun_sourcekit and xcrun_sourcekit ~= '' then
+          return { xcrun_sourcekit }
+        end
       end
 
       if vim.fn.executable 'sourcekit-lsp' == 1 then
@@ -183,19 +186,16 @@ return {
     -- sourcekit-lsp is provided by Xcode or the Swift toolchain, not Mason.
     local sourcekit = sourcekit_cmd()
     if sourcekit then
-      local util = require 'lspconfig.util'
       setup_server('sourcekit', {
         cmd = sourcekit,
         filetypes = { 'swift' },
-        root_dir = function(fname)
-          return util.root_pattern(
-            'buildServer.json',
-            'Package.swift',
-            'Runner.xcworkspace',
-            'Runner.xcodeproj',
-            'Podfile',
-            '.git'
-          )(fname) or util.path.dirname(fname)
+        root_dir = function(bufnr, on_dir)
+          local fname = vim.api.nvim_buf_get_name(bufnr)
+          local root = vim.fs.root(bufnr, {
+            'buildServer.json', 'Package.swift', 'Runner.xcworkspace',
+            'Runner.xcodeproj', 'Podfile', '.git',
+          })
+          on_dir(root or vim.fs.dirname(fname))
         end,
       })
     end

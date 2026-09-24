@@ -69,15 +69,35 @@ return { -- Autocompletion
     },
 
     completion = {
+      menu = { auto_show = true, auto_show_delay_ms = 0 },
+      trigger = {
+        show_on_keyword = true,
+        show_on_trigger_character = true,
+      },
       -- By default, you may press `<c-space>` to show the documentation.
       -- Optionally, set `auto_show = true` to show the documentation after a delay.
       documentation = { auto_show = false, auto_show_delay_ms = 500 },
     },
 
     sources = {
-      default = { 'lsp', 'path', 'snippets', 'lazydev' },
+      default = function()
+        local sources = { 'lsp', 'path', 'snippets', 'lazydev' }
+        local vault = vim.fn.expand '~/Vault/'
+        local path = vim.api.nvim_buf_get_name(0)
+
+        if vim.bo.filetype == 'markdown' and vim.startswith(path, vault) then
+          vim.list_extend(sources, { 'obsidian_query' })
+        end
+
+        return sources
+      end,
       providers = {
         lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+        obsidian_query = {
+          name = 'ObsidianQuery',
+          module = 'obsidian-query.blink',
+          score_offset = 90,
+        },
       },
     },
 

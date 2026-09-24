@@ -421,13 +421,6 @@ return {
     },
     -- Other
     {
-      '<leader>z',
-      function()
-        Snacks.zen()
-      end,
-      desc = 'Toggle Zen Mode',
-    },
-    {
       '<leader>Z',
       function()
         Snacks.zen.zoom()
