@@ -11,6 +11,12 @@ return {
     {
       '<leader>e',
       function()
+        -- If we're inside a floating window (e.g. the slot manager overlay),
+        -- close it first so fullscreen oil replaces the MAIN view instead of
+        -- opening inside the tiny overlay.
+        if vim.api.nvim_win_get_config(0).relative ~= '' then
+          vim.api.nvim_win_close(0, true)
+        end
         if vim.bo.filetype == 'oil' then
           vim.cmd 'bdelete'
         else
